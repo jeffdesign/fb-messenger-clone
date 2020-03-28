@@ -1,28 +1,23 @@
-import React, { Fragment, useState, useEffect } from "react"
-import firebase from "./firebase/config"
+import React from "react"
+import { BrowserRouter as Router, Route } from "react-router-dom"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
-import "./App.css"
+import SignUp from "./pages/SignUp"
+import { AuthProvider } from "./firebase/Auth"
+import PrivateRoute from "./PrivateRoute"
 
 function App() {
-  const [user, setUser] = useState<firebase.User | null>(null)
-
-  useEffect(() => {
-    handleUser()
-  }, [])
-
-  const handleUser = () => {
-    firebase.auth().onAuthStateChanged(user => {
-      console.log(user)
-      if (user) {
-        setUser(user)
-      } else {
-        setUser(null)
-      }
-    })
-  }
-
-  return <Fragment>{user ? <Home /> : <Login />}</Fragment>
+  return (
+    <AuthProvider>
+      <Router>
+        <>
+          <PrivateRoute exact path="/" component={Home} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/signup" component={SignUp} />
+        </>
+      </Router>
+    </AuthProvider>
+  )
 }
 
 export default App

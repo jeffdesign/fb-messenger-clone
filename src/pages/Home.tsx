@@ -1,5 +1,5 @@
 import React, { Fragment } from "react"
-import { firebaseLogout } from "../firebase/actions"
+import { firebaseLogout } from "../firebase/Actions"
 
 const Home = () => {
   return (

@@ -1,50 +1,46 @@
-import React, { Fragment, useState } from "react"
-import { firebaseLogin, firebaseSignup } from "../firebase/actions"
+import React, { useCallback, useContext } from "react"
+import { withRouter, Redirect } from "react-router"
+import firebase from "../firebase/Config"
+import { AuthContext } from "../firebase/Auth"
 
-const Login = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  })
+const Login = ({ history }: any) => {
+  const firebaseLogin = useCallback(
+    async (event: React.FormEvent<HTMLFormElement> | any) => {
+      event.preventDefault()
+      const { email, password } = event.target.elements
+      try {
+        await firebase
+          .auth()
+          .signInWithEmailAndPassword(email.value, password.value)
+        history.push("/")
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    [history],
+  )
 
-  const printValues = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log(form)
-  }
+  const { currentUser } = useContext(AuthContext)
 
-  const updateForm = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    })
+  if (currentUser) {
+    return <Redirect to="/" />
   }
 
   return (
-    <Fragment>
-      <form onSubmit={printValues}>
-        <input
-          value={form.email}
-          onChange={(event) => updateForm(event)}
-          type="email"
-          name="email"
-          placeholder="Email"
-        />
-        <input
-          value={form.password}
-          onChange={(event) => updateForm(event)}
-          type="password"
-          name="password"
-          placeholder="Password"
-        />
-        <button onClick={(event) => firebaseLogin({ event, form })}>
-          Login
-        </button>
-        <button onClick={(event) => firebaseSignup({ event, form })}>
-          Signup
-        </button>
+    <>
+      <form onSubmit={firebaseLogin}>
+        <label>
+          Email
+          <input name="email" type="email" placeholder="Email" />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" placeholder="Password" />
+        </label>
+        <button>Login</button>
       </form>
-    </Fragment>
+    </>
   )
 }
 
-export default Login
+export default withRouter(Login)

@@ -1,4 +1,4 @@
-import firebase from "./config"
+import firebase from "./Config"
 
 export const firebaseLogin = ({
   event,
@@ -39,8 +39,6 @@ export const firebaseSignup = ({
 }
 
 export const firebaseLogout = () => {
-  console.log("logout")
-
   firebase
     .auth()
     .signOut()
