@@ -11,9 +11,33 @@ const SignUp = ({ history }: any) => {
         await firebase
           .auth()
           .createUserWithEmailAndPassword(email.value, password.value)
-        history.push("/")
+          .then(
+            (authRes) => {
+              const userObj = {
+                email: authRes.user?.email,
+                friends: [],
+                messages: [],
+              }
+              firebase
+                .firestore()
+                .collection("users")
+                .doc(email.value)
+                .set(userObj)
+                .then(
+                  () => {
+                    history.push("/")
+                  },
+                  (dbErr) => {
+                    console.log("Failed to add user to the database: ", dbErr)
+                  },
+                )
+            },
+            (authErr) => {
+              console.log("Failed to create user: ", authErr)
+            },
+          )
       } catch (error) {
-        alert(error)
+        console.log("Network error: ", error)
       }
     },
     [history],

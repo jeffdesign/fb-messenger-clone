@@ -63,9 +63,16 @@ const Login = ({ history }: any) => {
         await firebase
           .auth()
           .signInWithEmailAndPassword(email.value, password.value)
-        history.push("/")
+          .then(
+            () => {
+              history.push("/")
+            },
+            (error) => {
+              console.log("Login error: " + error)
+            },
+          )
       } catch (error) {
-        console.log(error)
+        console.log("Server error: " + error)
       }
     },
     [history],
