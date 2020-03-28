@@ -4,25 +4,6 @@ const newChat = () => {
   console.log("new chat click")
 }
 
-// const selectChat = (idx: number) => {
-//   console.log("selected chat" + idx)
-// }
-
-// interface Chats {
-//   chat: Chat[]
-// }
-
-interface Message {
-  message: string
-  sender: string
-}
-
-interface Chat {
-  messages: Message[]
-  receiverHasRead: boolean
-  users: string[]
-}
-
 const ChatList = ({
   newChatBtnClicked,
   selectChat,
@@ -33,14 +14,14 @@ const ChatList = ({
   newChatBtnClicked: any
   selectChat: any
   userEmail: any
-  chats: any
+  chats: firebase.firestore.DocumentData[]
   selectedChatIndex: any
 }) => {
   const List = () => (
     <div>
       <button onClick={() => newChat}>New chat</button>
       <ul>
-        {chats.map((chat: any, idx: number) => {
+        {chats.map((chat: firebase.firestore.DocumentData, idx: number) => {
           return (
             <li onClick={() => selectChat(idx)} key={idx}>
               <span>
