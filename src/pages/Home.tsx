@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react"
 import { firebaseLogout } from "../firebase/Actions"
 import ChatList from "../components/ChatList/ChatList"
 import ChatView from "../components/ChatView/ChatView"
+import ChatTextBox from "../components/ChatTextBox/ChatTextBox"
+
 import firebase from "../firebase/Config"
 
 interface T {
@@ -46,33 +48,73 @@ const Home = ({ history }: any) => {
 
   const selectChat = (chatIndex: any) => {
     console.log("Chat selected: " + chatIndex)
+    console.log(history)
     setState({ ...state, selectedChat: chatIndex, newChatFormVisible: true })
   }
 
   const newChatBtnClicked = () => {
-    setState({ ...state, newChatFormVisible: true, selectedChat: null })
+    // setState({ ...state, newChatFormVisible: true, selectedChat: null })
   }
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged(async (_usr) => {
-      if (!_usr) history.push("/login")
-      else {
-        await firebase
-          .firestore()
-          .collection("chats")
-          .where("users", "array-contains", _usr.email)
-          .onSnapshot(async (res) => {
-            const chats = res.docs.map((_doc) => _doc.data())
-            await setState({
-              ...state,
-              email: _usr.email,
-              chats: chats,
+    if (state.selectedChat === null) {
+      firebase.auth().onAuthStateChanged(async (_usr) => {
+        if (!_usr) history.push("/login")
+        else {
+          firebase
+            .firestore()
+            .collection("chats")
+            .where("users", "array-contains", _usr.email)
+            .onSnapshot(async (res) => {
+              const chats = res.docs.map((_doc) => _doc.data())
+              setState({
+                newChatFormVisible: false,
+                selectedChat: 0,
+                email: _usr.email,
+                chats: chats,
+              })
             })
-            console.log(state)
-          })
-      }
+        }
+      })
+    }
+  }, [])
+
+  const submitMessage = (msg: any) => {
+    const docKey =
+      (state.selectedChat !== null &&
+        buildDocKey(
+          state.chats[state.selectedChat].users.filter(
+            (user: any) => user !== state.email,
+          )[0],
+        )) ||
+      undefined
+
+    console.log(docKey)
+
+    firebase
+      .firestore()
+      .collection("chats")
+      .doc(docKey)
+      .update({
+        messages: firebase.firestore.FieldValue.arrayUnion({
+          sender: state.email,
+          message: msg,
+          timestamp: Date.now(),
+        }),
+        receiverHasRead: false,
+      })
+
+    console.log(state.selectedChat)
+
+    setState({
+      ...state,
+      selectedChat: state.selectedChat,
+      newChatFormVisible: true,
     })
-  }, [state.email])
+  }
+
+  const buildDocKey = (friend: any) =>
+    [state.email, friend].sort().reverse().join(":")
 
   return (
     <div style={styles.mainWrapper}>
@@ -88,10 +130,11 @@ const Home = ({ history }: any) => {
         />
       </div>
       <div style={styles.chatViewWrapper}>
-        {state.newChatFormVisible && state.selectedChat !== null ? (
+        {state.newChatFormVisible && state.selectedChat !== null && (
           <ChatView user={state.email} chat={state.chats[state.selectedChat]} />
-        ) : (
-          <div></div>
+        )}
+        {state.newChatFormVisible && state.selectedChat !== null && (
+          <ChatTextBox submitMessageFn={submitMessage} />
         )}
       </div>
     </div>

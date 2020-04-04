@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect } from "react"
 // import { styles } from "./styles"
 
 const styles = {
@@ -49,17 +49,17 @@ const styles = {
 }
 
 const ChatView = ({ user, chat }: { user: any; chat: any }) => {
-  const divRef = React.useRef<HTMLDivElement>(null)
+  const chatViewRef = React.useRef<HTMLDivElement>(null)
 
   const scrollToRef = () =>
-    divRef.current?.scrollTo(0, divRef.current?.scrollHeight || 0)
+    chatViewRef.current?.scrollTo(0, chatViewRef.current?.scrollHeight || 0)
 
   useEffect(() => {
     scrollToRef()
   }, [])
 
   return (
-    <div ref={divRef} style={styles.chatViewWrapper}>
+    <div ref={chatViewRef} style={styles.chatViewWrapper}>
       <div style={styles.toolbar}>
         <h4>{chat.users.filter((usr: any) => usr !== user)}</h4>
       </div>
