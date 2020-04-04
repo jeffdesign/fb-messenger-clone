@@ -56,7 +56,7 @@ const ChatView = ({ user, chat }: { user: any; chat: any }) => {
 
   useEffect(() => {
     scrollToRef()
-  }, [])
+  }, [chat])
 
   return user ? (
     <div ref={chatViewRef} style={styles.chatViewWrapper}>
