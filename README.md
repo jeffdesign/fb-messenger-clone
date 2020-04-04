@@ -2,6 +2,17 @@
 
 ## For fun... Work in progress
 
+- [x] User authentication
+- [x] Read & write massages
+- [ ] Show message status (read/unread)
+- [ ] Display multiple conversations
+- [ ] Create new conversation
+- [ ] Group conversation
+- [ ] Display user avatar
+- [ ] Detailed user profile
+
+Written in React (Typescript) with Firebase/Firestore.
+
 ## Available Scripts
 
 In the project directory, you can run:
