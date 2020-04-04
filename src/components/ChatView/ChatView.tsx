@@ -58,7 +58,7 @@ const ChatView = ({ user, chat }: { user: any; chat: any }) => {
     scrollToRef()
   }, [])
 
-  return (
+  return user ? (
     <div ref={chatViewRef} style={styles.chatViewWrapper}>
       <div style={styles.toolbar}>
         <h4>{chat.users.filter((usr: any) => usr !== user)}</h4>
@@ -75,6 +75,8 @@ const ChatView = ({ user, chat }: { user: any; chat: any }) => {
         })}
       </div>
     </div>
+  ) : (
+    <div>Laddar...</div>
   )
 }
 

@@ -40,7 +40,7 @@ const styles = {
 
 const Home = ({ history }: any) => {
   const [state, setState] = useState<T>({
-    selectedChat: null,
+    selectedChat: 0,
     newChatFormVisible: false,
     email: null,
     chats: [],
@@ -49,7 +49,7 @@ const Home = ({ history }: any) => {
   const selectChat = (chatIndex: any) => {
     console.log("Chat selected: " + chatIndex)
     console.log(history)
-    setState({ ...state, selectedChat: chatIndex, newChatFormVisible: true })
+    setState({ ...state, selectedChat: chatIndex, newChatFormVisible: false })
   }
 
   const newChatBtnClicked = () => {
@@ -57,27 +57,25 @@ const Home = ({ history }: any) => {
   }
 
   useEffect(() => {
-    if (state.selectedChat === null) {
-      firebase.auth().onAuthStateChanged(async (_usr) => {
-        if (!_usr) history.push("/login")
-        else {
-          firebase
-            .firestore()
-            .collection("chats")
-            .where("users", "array-contains", _usr.email)
-            .onSnapshot(async (res) => {
-              const chats = res.docs.map((_doc) => _doc.data())
-              setState({
-                newChatFormVisible: false,
-                selectedChat: 0,
-                email: _usr.email,
-                chats: chats,
-              })
+    firebase.auth().onAuthStateChanged(async (_usr) => {
+      if (!_usr) history.push("/login")
+      else {
+        firebase
+          .firestore()
+          .collection("chats")
+          .where("users", "array-contains", _usr.email)
+          .onSnapshot(async (res) => {
+            const chats = res.docs.map((_doc) => _doc.data())
+            setState({
+              newChatFormVisible: false,
+              selectedChat: state.selectedChat,
+              email: _usr.email,
+              chats: chats,
             })
-        }
-      })
-    }
-  }, [])
+          })
+      }
+    })
+  }, [history, state.selectedChat])
 
   const submitMessage = (msg: any) => {
     const docKey =
@@ -105,12 +103,6 @@ const Home = ({ history }: any) => {
       })
 
     console.log(state.selectedChat)
-
-    setState({
-      ...state,
-      selectedChat: state.selectedChat,
-      newChatFormVisible: true,
-    })
   }
 
   const buildDocKey = (friend: any) =>
@@ -130,10 +122,10 @@ const Home = ({ history }: any) => {
         />
       </div>
       <div style={styles.chatViewWrapper}>
-        {state.newChatFormVisible && state.selectedChat !== null && (
+        {state.selectedChat !== null && (
           <ChatView user={state.email} chat={state.chats[state.selectedChat]} />
         )}
-        {state.newChatFormVisible && state.selectedChat !== null && (
+        {state.selectedChat !== null && (
           <ChatTextBox submitMessageFn={submitMessage} />
         )}
       </div>
